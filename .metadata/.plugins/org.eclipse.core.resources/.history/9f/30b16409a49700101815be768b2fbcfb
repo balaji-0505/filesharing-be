@@ -1,0 +1,20 @@
+spring.application.name=filesystem
+server.port=8080
+
+# H2 database configuration (with custom username, password, and db name)
+spring.datasource.url=jdbc:h2:file:./data/filesharing;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=root
+spring.datasource.password=root
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+
+# File storage
+app.storage.location=${USER_HOME:${user.home}}/filesharing-storage
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
