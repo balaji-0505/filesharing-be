@@ -24,13 +24,20 @@ public class AuthController {
         this.tokenService = tokenService;
     }
 
+    // ================================
+    // LOGIN (Uses JSON Body)
+    // ================================
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String email,
-                                   @RequestParam String password) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+
+        String email = body.get("email");
+        String password = body.get("password");
+
         return userRepository.findByEmail(email)
                 .filter(u -> BCrypt.checkpw(password, u.getPasswordHash()))
                 .<ResponseEntity<?>>map(user -> {
                     String token = tokenService.issueToken(user);
+
                     Map<String, Object> response = new HashMap<>();
                     response.put("token", token);
                     response.put("user", Map.of(
@@ -38,25 +45,37 @@ public class AuthController {
                             "email", user.getEmail(),
                             "name", user.getUsername()
                     ));
+
                     return ResponseEntity.ok(response);
                 })
-                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid credentials")));
+                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Invalid credentials")));
     }
 
+    // ================================
+    // REGISTER (Uses JSON Body)
+    // ================================
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestParam String name,
-                                      @RequestParam String email,
-                                      @RequestParam String password) {
+    public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
+
+        String name = body.get("name");
+        String email = body.get("email");
+        String password = body.get("password");
+
         if (userRepository.existsByEmail(email)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "Email already registered"));
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Email already registered"));
         }
+
         User user = new User();
         user.setUsername(name);
         user.setEmail(email);
         user.setPasswordHash(BCrypt.hashpw(password, BCrypt.gensalt()));
+
         user = userRepository.save(user);
 
         String token = tokenService.issueToken(user);
+
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
         response.put("user", Map.of(
@@ -64,8 +83,7 @@ public class AuthController {
                 "email", user.getEmail(),
                 "name", user.getUsername()
         ));
+
         return ResponseEntity.ok(response);
     }
 }
-
-
