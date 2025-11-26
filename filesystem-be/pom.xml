@@ -43,10 +43,10 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Password hashing (BCrypt) without full Spring Security stack -->
+        <!-- Spring Security -->
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-crypto</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <!-- Optional: H2 for testing (commented out if you don’t want it) -->
