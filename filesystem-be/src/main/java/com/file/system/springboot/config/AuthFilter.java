@@ -6,9 +6,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class AuthFilter extends OncePerRequestFilter {
 
@@ -32,7 +36,14 @@ public class AuthFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
             var userOpt = tokenService.validate(token);
             if (userOpt.isPresent()) {
-                request.setAttribute("userId", userOpt.get().getId());
+                var user = userOpt.get();
+                request.setAttribute("userId", user.getId());
+
+                // INTEGRATE WITH SPRING SECURITY
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        user, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
                 filterChain.doFilter(request, response);
                 return;
             }
